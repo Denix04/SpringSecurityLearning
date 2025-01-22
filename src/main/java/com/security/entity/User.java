@@ -1,39 +1,42 @@
 package com.security.entity;
 
-import java.util.Collection;
-import java.util.LinkedList;
-
+import java.util.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
-public class User implements UserDetails{
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    private String userName;
+    private String username;
     private String password;
-    private LinkedList<Authoritie> authorities;
 
+    @OneToMany
+    private Collection<Authority> authorities;
 
-	@Override
+    public User(String name, String pw) {
+        this.username = name;
+        this.password = pw;
+        this.authorities = new LinkedList<Authority>();
+    }
+
+    public User(String name, String pw, Collection<Authority> auth) {
+        this.username = name;
+        this.password = pw;
+        this.authorities = auth;
+    }
+
 	public String getUsername() {
-        return userName;
+		return username;
 	}
 
-	@Override
 	public String getPassword() {
-        return password;
+		return password;
 	}
 
-	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+		return authorities;
 	}
 }

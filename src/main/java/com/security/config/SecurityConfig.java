@@ -2,6 +2,7 @@ package com.security.config;
 
 import org.springframework.context.annotation.*;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,11 +16,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.
             authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/user/**").hasRole("USER")
+                    .anyRequest().permitAll()
                     )
-            .httpBasic();
+            .httpBasic(Customizer.withDefaults())
+            .csrf(csrf -> {});
+
+/* This is another for to configure the userDetailsService
+
+        UserDetails user = new User.withUsername().password().roles()
+                                    .build();
+
+        http.userDetailsService(new InMemoryUserDetailsManager(user));
+*/
 
         return http.build();
     }
@@ -38,7 +48,13 @@ public class SecurityConfig {
             .roles("ADMIN")
             .build();
 
-        return new InMemoryUserDetailsManager(user,admin);
+        UserDetails dev = User.builder()
+            .username("dev")
+            .password(passwordEncoder().encode("dev"))
+            .roles("USER","ADMIN")
+            .build();
+
+        return new InMemoryUserDetailsManager(user,admin,dev);
     }
     
     @Bean
